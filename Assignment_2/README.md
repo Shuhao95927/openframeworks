@@ -3,7 +3,7 @@
 ## Description - this is assignment 2
 
 ## Screenshots 
-![](/CC-OF/modules2.jpg)
-![](/CC-OF/OFgif.gif)
-![](/CC-OF/screenshot.png)
+![](/img/modules2.jpg)
+![](/img/OFgif.gif)
+![](/img/screenshot.png)
 
