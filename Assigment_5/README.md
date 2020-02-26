@@ -10,10 +10,10 @@ Starting at each change, play a sound that you either created or downloaded (wit
 Since this project uses sound, you will have to upload a youtube file for your README.md .
 ___________
 ### 1.Screenshot - 1
-![load img1](/imgs/img1.png)
+![load img1](../imgs/img1.png)
 
 ### 2.Screenshot - 2
-![load img2](/imgs/img2.png)
+![load img2](../imgs/img2.png)
 
 ### Youtube Link:
 https://youtu.be/tuLZZhR2IfQ
