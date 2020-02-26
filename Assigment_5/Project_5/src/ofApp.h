@@ -7,7 +7,17 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+    
+
+    void drawHappy(int x, int y);
+    void drawSad(int x, int y);
+    void drawAngry(int x, int y);
+    void drawSuprise(int x, int y);
+    void drawCenterEye(int x, int y);
+    void moveCH();
 		
+    
+    
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y);
