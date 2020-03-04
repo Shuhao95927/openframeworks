@@ -1,16 +1,11 @@
-# Project 5 - Sound & Polygon
-Create a new project using the code from the last assignment.
+# Project 6
 
-Currently emotions change over 1 second and the face is held for 1 second.
+Assemble at least one scene from your story with a title in a font of your choice.
 
-Convert one primitive shape to a polygon. (A poly mouth could be good here.)
+Choose an active element (not static scenery).
 
-Starting at each change, play a sound that you either created or downloaded (with attribution in your .md file). Make sure each sound is < 2 seconds.
+Write the code necessary to move it with the arrow keys or mouse dragging.
 
-Since this project uses sound, you will have to upload a youtube file for your README.md .
-___________
-### Screenshot
-![load img1](imgs/newimg.jpg)
+Choose a second element that moves to a given x,y when the mouse button is clicked.
 
-### Youtube Link:
-https://youtu.be/tuLZZhR2IfQ
+When key 'f' is pressed, toggle writing to a fading fbo instead of directly to the screen.
