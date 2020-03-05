@@ -7,16 +7,13 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
-    
-
-    void drawHappy(int x, int y);
-    void drawSad(int x, int y);
-    void drawAngry(int x, int y);
-    void drawSuprise(int x, int y);
-    void drawCenterEye(int x, int y);
-    void moveCH();
 		
-    
+    void drawHao();
+    void drawStar();
+    void drawSurronding();
+    void drawPedestrain();
+    void drawStringTitle();
+    void drawShoot();
     
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -29,4 +26,14 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+    
+    ofTrueTypeFont font1;
+    ofTrueTypeFont font2;
+    string title;
+    string intro;
+    
+    bool useFbo = false;
+    
+    ofFbo fbo;
+    
 };
