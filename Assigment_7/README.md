@@ -16,14 +16,9 @@ Use translation, scaling, and rotation to add at least 3 new features to the exi
 ___________
 ### Screenshot
 ![load img1](imgs/angry.png)
-fbo - on
 ![load img2](imgs/sad.png)
 ![load img3](imgs/happy.png)
-
-
-
+__________
 ### Youtube Link:
-![load img3](imgs/link.png)
+![load img3](imgs/link.png)(https://www.youtube.com/watch?v=xfLLAEoszbI)
 
-
-[![openFrameworks Week_6 Assignment](imgs/img-01.jpg)](https://youtu.be/xfLLAEoszbI)
