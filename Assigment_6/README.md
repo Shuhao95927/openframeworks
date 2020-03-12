@@ -19,3 +19,6 @@ fbo - on
 ### Youtube Link:
 https://youtu.be/xfLLAEoszbI
 Sorry, There's something wrong with my photoshop and it can't export a gif file :( 
+
+
+[![openFrameworks Week_6 Assignment](imgs/img-01.jpg)](https://youtu.be/xfLLAEoszbI)
