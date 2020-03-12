@@ -1,4 +1,4 @@
-# Project 6
+# Project 7
 
 Create a new project using the code from the last emotion assignment.
 
@@ -20,5 +20,5 @@ ___________
 ![load img3](imgs/happy.png)
 __________
 ### Youtube Link:
-![load img3](imgs/link.png)(https://www.youtube.com/watch?v=xfLLAEoszbI)
+[![Watch the video](imgs/link.png)](https://www.youtube.com/watch?v=xfLLAEoszbI)
 
