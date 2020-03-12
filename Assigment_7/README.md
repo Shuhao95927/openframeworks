@@ -20,5 +20,5 @@ ___________
 ![load img3](imgs/happy.png)
 __________
 ### Youtube Link:
-[![Watch the video](imgs/link.png)](https://www.youtube.com/watch?v=xfLLAEoszbI)
+[![Watch the video](imgs/link.png)](https://youtu.be/2eyEYhUNd_8)
 
