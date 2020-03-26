@@ -22,6 +22,9 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
+    void drawSun();
+    void drawCloud();
+    
     ofxPanel gui;
     ofxIntSlider SunriseTime;
     ofxIntSlider SunsetTime;

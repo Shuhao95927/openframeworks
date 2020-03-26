@@ -6,7 +6,14 @@
 ofxJSONElement root;
 
 ofImage NewYork;
+ofImage CloudA;
+ofImage CloudB;
 
+ofSoundPlayer city;
+
+int CloudAPosx = 0;
+int CloudBPosx = -500;
+int speed = 10;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -35,7 +42,12 @@ void ofApp::setup(){
     ofSetWindowShape(1280, 1000);
     
     NewYork.load("images/NewYork1.png");
+    CloudA.load("images/cloud1.png");
+    CloudB.load("images/cloud2.png");
     
+    city.load("Sound/city.mp3");
+    city.setLoop(true);
+    city.play();
 
 }
 
@@ -44,7 +56,20 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    
+    city.setVolume(cloudCover / 2);
+    
+    speed = windSpeed / 3;
 
+    CloudAPosx += speed;
+    CloudBPosx += speed;
+    
+    if(CloudAPosx >= ofGetWidth()){
+        CloudAPosx = 0;
+    }
+    if(CloudBPosx >= ofGetWidth()){
+        CloudBPosx = -500;
+    }
 }
 std::ostringstream text;
 
@@ -89,7 +114,6 @@ void ofApp::draw(){
     ofColor evening = ofColor(34,34,78);
     ofColor sunset = ofColor(234,84,64);
     
-    ofColor cloud = ofColor(255);
     ofColor light = ofColor(255,150,40);
     
     if(currentTime >=0 && currentTime<= 12){
@@ -116,12 +140,22 @@ void ofApp::draw(){
             ofSetColor(evening);
         }
     }
-    
-    
-    cout<<SunriseTime<<endl;
     ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
+    
+    //cloud cover
+//    ofSetColor(255,255,cloudCover*40);
+//    ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
+//    cout<<cloudCover<<endl;
+    //
+    
+    
+    drawSun();
+    ofSetColor(255);
+    drawCloud();
+    
     NewYork.draw(0,700,1280,300);
     
+
     gui.draw();
     
     if (ofGetFrameNum() == 1){
@@ -133,12 +167,29 @@ void ofApp::draw(){
         text << "Sunrise Time: " << sunriseTimeHour << ":" << sunriseTimeMinute << endl;
         text << "Sunset Time: " << sunsetTimeHour << ":" << sunsetMinute << endl;
     }
-    ofSetColor(0);
-    ofDrawBitmapString(text.str(),20,500);
+    ofSetColor(150);
+    ofDrawBitmapString(text.str(),20,180);
     
     
 
     
+}
+void ofApp::drawSun(){
+    int posX = ofMap(currentTime,SunriseTime,SunsetTime,0,ofGetWidth());
+    int SunR = ofMap(temperature,-100,100,0,50);
+    
+    ofSetColor(255,100,100);
+    ofDrawCircle(posX, 100, SunR);
+}
+
+void ofApp::drawCloud(){
+
+    CloudA.draw(CloudAPosx,200,200,100);
+    CloudB.draw(CloudBPosx,400,100,50);
+    CloudA.draw(CloudBPosx+100,50,100,50);
+    CloudB.draw(CloudAPosx+100,150,50,25);
+
+
 }
 
 //--------------------------------------------------------------
