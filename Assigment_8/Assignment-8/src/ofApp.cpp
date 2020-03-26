@@ -6,6 +6,9 @@
 ofxJSONElement root;
 
 ofImage NewYork;
+ofImage NewYorkDay;
+ofImage NewYorkNight;
+
 ofImage CloudA;
 ofImage CloudB;
 
@@ -42,6 +45,9 @@ void ofApp::setup(){
     ofSetWindowShape(1280, 1000);
     
     NewYork.load("images/NewYork1.png");
+    NewYorkDay.load("images/NewYork-day.png");
+    NewYorkNight.load("images/NewYork-night.png");
+    
     CloudA.load("images/cloud1.png");
     CloudB.load("images/cloud2.png");
     
@@ -111,7 +117,7 @@ void ofApp::draw(){
     
     //
     ofColor moring = ofColor(206,232,249);
-    ofColor evening = ofColor(34,34,78);
+    ofColor evening = ofColor(25,29,61);
     ofColor sunset = ofColor(234,84,64);
     
     ofColor light = ofColor(255,150,40);
@@ -142,20 +148,17 @@ void ofApp::draw(){
     }
     ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
     
-    //cloud cover
-//    ofSetColor(255,255,cloudCover*40);
-//    ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
-//    cout<<cloudCover<<endl;
-    //
-    
-    
     drawSun();
+    
     ofSetColor(255);
+    if(currentTime >= SunriseTime && currentTime <= SunsetTime - 2){
+        NewYorkDay.draw(0,700,1280,300);
+    }else{
+        NewYorkNight.draw(0,700,1280,300);
+    }
+    
     drawCloud();
     
-    NewYork.draw(0,700,1280,300);
-    
-
     gui.draw();
     
     if (ofGetFrameNum() == 1){
@@ -177,13 +180,18 @@ void ofApp::draw(){
 void ofApp::drawSun(){
     int posX = ofMap(currentTime,SunriseTime,SunsetTime,0,ofGetWidth());
     int SunR = ofMap(temperature,-100,100,0,50);
-    
-    ofSetColor(255,100,100);
+    ofSetCircleResolution(100);
+    ofSetColor(245,188,26);
     ofDrawCircle(posX, 100, SunR);
 }
 
 void ofApp::drawCloud(){
-
+    if(currentTime >= SunriseTime && currentTime <= SunsetTime - 2){
+        ofSetColor(255,255,255,255);
+    }else{
+        ofSetColor(255,255,255,50);
+    }
+    
     CloudA.draw(CloudAPosx,200,200,100);
     CloudB.draw(CloudBPosx,400,100,50);
     CloudA.draw(CloudBPosx+100,50,100,50);

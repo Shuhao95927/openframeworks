@@ -28,12 +28,12 @@ Example: Use sunrise/sunset/hour to change the background color. Use temperature
 Prepare your first project for next week's crit.
 ___________
 ### Screenshot
-![load img1](imgs/8-1.png)
-![load img2](imgs/8-3.png)
-![load img3](imgs/8-4.png)
-![load img4](imgs/8-5.png)
+![load img1](imgs/p1.png)
+![load img2](imgs/p2.png)
+![load img3](imgs/p3.png)
+![load img4](imgs/p4.png)
 
 __________
 ### Youtube Link:
-[![Watch the video](imgs/8-1.png)](https://youtu.be/ah9W4CgTsg0)
+[![Watch the video](imgs/p2.png)](https://youtu.be/XPDB5O6YlkE)
 
