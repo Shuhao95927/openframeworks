@@ -22,6 +22,7 @@ ofDrawBezier(foxCenterPosX + 370/jpgTimes, foxCenterPosY + 100/jpgTimes, foxCent
 ![bird](imgs/bird.png)
 
 3. If I want to switch between different scenarios (e.g. from scene A to scene B), what should I do?
+
 ![scene A](imgs/sceneA.jpg)
 ![scene B](imgs/sceneB.jpg)
 
