@@ -6,6 +6,17 @@ int foxStandCenterPosX = 1600;
 int foxStandCenterPosY = 800;
 int foxEyeR = 15;
 
+//define the fox's arm in the main scene
+int foxArmSTX;
+int foxArmSTY;
+int foxArmSMX;
+int foxArmSMY;
+int foxArmEMX;
+int foxArmEMY;
+int foxArmETX;
+int foxArmETY;
+//
+
 int rabCenterPosX = 1200;
 int rabCenterPosY = 500;
 int rabStandCenterPosX = 1300;
@@ -26,6 +37,9 @@ ofImage FoxLowLimb;
 ofImage FoxShoe;
 ofImage FoxRHdef; //Default right hand
 ofImage FoxLHdef; //Default left hand
+ofImage FoxStandRH;
+ofImage FoxStandLH;
+ofImage FoxCamera;
 ofVec2f foxCenter(foxCenterPosX,foxCenterPosY);
 ofVec2f foxStandCenter(foxStandCenterPosX, foxStandCenterPosY);
 
@@ -53,6 +67,8 @@ ofVec2f foxEyePosA;
 ofVec2f rabEyePos;
 ofVec2f rabEyePosA;
 
+
+
 //Sound
 ofSoundPlayer doveFault;
 ofSoundPlayer StopTheWorld;
@@ -75,6 +91,9 @@ void ofApp::setup(){
     FoxShoe.load("character/foxShoe.png"); // 135 * 95
     FoxRHdef.load("character/foxRHdef.png"); // 87 * 113
     FoxLHdef.load("character/foxLHdef.png"); // 87 * 113
+    FoxStandRH.load("character/foxStandRHand.png"); // 84 * 113
+    FoxStandLH.load("character/foxStandLHand.png"); // 84 * 113
+    FoxCamera.load("character/camera.png");
     
     RabbitHead.load("character/rabbitHead.png");
     RabbitBody.load("character/rabbitBody.png");
@@ -93,9 +112,10 @@ void ofApp::setup(){
 
     
     doveFault.load("music/Lee MacDougall,Sharon Wheatley - The Dover Fault.mp3");
-    StopTheWorld.load("music/Lee MacDougall,'Come From Away' Company,Sharon Wheatley - Stop the World");
-    doveFault.play();
+    StopTheWorld.load("music/Lee MacDougall,'Come From Away' Company,Sharon Wheatley - Stop the World.mp3");
     
+    doveFault.play();
+
 
 }
 
@@ -124,16 +144,37 @@ void ofApp::update(){
 void ofApp::draw(){
     ofBackground(190,233,255);
     
-    if(currentTime >= 100 && foxCenterPosX <= 0){ //1740
+    if(currentTime >= 100 && foxCenterPosX + 751/jpgTimes <= 0){ //1740
+        doveFault.stop();
+        
         drawMainSceneA();
-        drawFoxStand();
-        drawRabStand();
+        
+        if(slideNumber == 1){
+            drawFoxStand();
+            drawFoxArmsA1();
+            drawFoxEyeB1();
+        }else{
+            drawFoxStand();
+            drawFoxArmsA1();
+            drawFoxEyeA1();
+        }
+        
+        if(slideNumber == 3){
+            drawRabStand();
+            drawRabEyeB1();
+        }else{
+            drawRabStand();
+            drawRabEyeA1();
+        }
+        
     }else{
         drawFirstScene(); //1st Scene
-
+        
     }
     
-    
+    if(currentTime == 1740){
+        StopTheWorld.play();
+    }
     
     if(currentTime < 600){
         drawFoxForwardA();
@@ -173,8 +214,8 @@ void ofApp::draw(){
 }
 
     
-    drawFoxDef();
-    drawFoxEyeA();
+//    drawFoxDef();
+//    drawFoxEyeA();
 
     if(slideNumber == 3){
         drawRabDef();
@@ -184,10 +225,20 @@ void ofApp::draw(){
         drawRabEyeA();
     }
     
+    if(slideNumber == 1){
+        drawFoxDef();
+        drawFoxEyeB();
+    }else{
+        drawFoxDef();
+        drawFoxEyeA();
+    }
+    
     
 }
 
-//--------------------------------------------------------------
+//------------------------------//
+//             Fox              //
+//------------------------------//
 
 void ofApp::drawFoxDef(){
     //draw hands
@@ -221,6 +272,20 @@ void ofApp::drawFoxStand(){
     FoxHead.draw(foxStandCenter + ofVec2f(-35, -100),927/jpgTimes,751/jpgTimes);
 
     ofSetColor(255);
+    
+     //draw legs
+     ofSetColor(19,84,84);
+     ofSetLineWidth(15);
+     ofNoFill();
+     //left leg stand
+     ofDrawBezier(foxStandCenterPosX + 170/jpgTimes, foxStandCenterPosY + 500/jpgTimes, foxStandCenterPosX + 100/jpgTimes, foxStandCenterPosY + 600/jpgTimes, foxStandCenterPosX + 100/jpgTimes, foxStandCenterPosY + 900/jpgTimes, foxStandCenterPosX + 170/jpgTimes, foxStandCenterPosY + 1000/jpgTimes);
+     //right leg stand
+     ofDrawBezier(foxStandCenterPosX + 350/jpgTimes, foxStandCenterPosY + 500/jpgTimes, foxStandCenterPosX + 280/jpgTimes, foxStandCenterPosY + 600/jpgTimes, foxStandCenterPosX + 280/jpgTimes, foxStandCenterPosY + 900/jpgTimes, foxStandCenterPosX + 350/jpgTimes, foxStandCenterPosY + 1000/jpgTimes);
+     
+     ofSetColor(255);
+
+     FoxShoe.draw(foxStandCenter + ofVec2f(60/jpgTimes,1000/jpgTimes),160/jpgTimes, 120/jpgTimes);
+     FoxShoe.draw(foxStandCenter + ofVec2f(240/jpgTimes,1000/jpgTimes),160/jpgTimes, 120/jpgTimes);
 }
 
 void ofApp::drawFoxForwardA(){
@@ -258,19 +323,86 @@ void ofApp::drawFoxForwardB(){
 
 }
 
-void ofApp::drawFoxEyeA(){
-    ofFill();
+void ofApp::drawFoxEyeA(){ //open eyes
+    
+     ofFill();
+     
+     ofSetColor(255);
+     ofDrawCircle(foxCenter + ofVec2f(50/jpgTimes,-120/jpgTimes), foxEyeR);
+     ofDrawCircle(foxCenter + ofVec2f(340/jpgTimes,-120/jpgTimes), foxEyeR);
+    
+     ofSetColor(0);
+     ofDrawCircle(foxCenter + ofVec2f(40/jpgTimes,-120/jpgTimes), foxEyeR-5);
+     ofDrawCircle(foxCenter + ofVec2f(330/jpgTimes,-120/jpgTimes), foxEyeR-5);
+     
+     ofSetColor(255);
+    
+
+}
+
+void ofApp::drawFoxEyeB(){ //close eyes
+    ofSetColor(211, 184, 155);
+    ofSetLineWidth(5);
+    ofNoFill();
+      
+    ofDrawBezier(foxCenterPosX - 25/jpgTimes, foxCenterPosY - 120/jpgTimes, foxCenterPosX - 25/jpgTimes, foxCenterPosY - 50/jpgTimes, foxCenterPosX + 115/jpgTimes, foxCenterPosY - 50/jpgTimes,foxCenterPosX + 115/jpgTimes, foxCenterPosY - 120/jpgTimes );
+      
+    ofDrawBezier(foxCenterPosX + 280/jpgTimes, foxCenterPosY - 120/jpgTimes, foxCenterPosX + 280/jpgTimes, foxCenterPosY - 50/jpgTimes, foxCenterPosX + 420/jpgTimes, foxCenterPosY - 50/jpgTimes,foxCenterPosX + 420/jpgTimes, foxCenterPosY - 120/jpgTimes );
+      
     ofSetColor(255);
-    ofDrawCircle(foxEyePos, foxEyeR); //foxEyePos
+    
+}
+
+void ofApp::drawFoxEyeA1(){ // Main Scene Eyes
+    ofFill();
+    
+    ofSetColor(255);
+    ofDrawCircle(foxEyePos, foxEyeR);
     ofDrawCircle(foxEyePos + ofVec2f(320/jpgTimes,0), foxEyeR);
 
     ofSetColor(0);
     ofDrawCircle(foxEyePosA + ofVec2f(-10/jpgTimes,0), foxEyeR-5);
     ofDrawCircle(foxEyePosA + ofVec2f(310/jpgTimes,0), foxEyeR-5);
+    
+    ofSetColor(255);
 
 }
 
-//-----------------------------------
+void ofApp::drawFoxEyeB1(){
+    ofSetColor(211, 184, 155);
+    ofSetLineWidth(5);
+    ofNoFill();
+      
+    ofDrawBezier(foxStandCenterPosX - 25/jpgTimes, foxStandCenterPosY - 120/jpgTimes, foxStandCenterPosX - 25/jpgTimes, foxStandCenterPosY - 50/jpgTimes, foxStandCenterPosX + 115/jpgTimes, foxStandCenterPosY - 50/jpgTimes,foxStandCenterPosX + 115/jpgTimes, foxStandCenterPosY - 120/jpgTimes );
+      
+    ofDrawBezier(foxStandCenterPosX + 280/jpgTimes, foxStandCenterPosY - 120/jpgTimes, foxStandCenterPosX + 280/jpgTimes, foxStandCenterPosY - 50/jpgTimes, foxStandCenterPosX + 420/jpgTimes, foxStandCenterPosY - 50/jpgTimes,foxStandCenterPosX + 420/jpgTimes, foxStandCenterPosY - 120/jpgTimes );
+      
+    ofSetColor(255);
+}
+
+void ofApp::drawFoxArmsA1(){
+
+    //draw arms
+    ofSetColor(47,189,191);
+    ofSetLineWidth(12);
+    ofNoFill();
+    
+    ofDrawBezier(foxArmSTX,foxArmSTY,foxArmSMX,foxArmSMY,foxArmEMX,foxArmEMY,foxArmETX,foxArmETY);
+    ofDrawBezier(foxArmSTX + 300/jpgTimes,foxArmSTY,foxArmSMX + 300/jpgTimes,foxArmSMY,foxArmEMX + 300/jpgTimes,foxArmEMY,foxArmETX + 300/jpgTimes,foxArmETY);
+    //
+    ofSetColor(255);
+    
+    FoxStandLH.draw(foxArmETX - 50/jpgTimes, foxArmETY - 50/jpgTimes,(84+10)/jpgTimes,(113+10)/jpgTimes);
+    FoxStandRH.draw(foxArmETX + 250/jpgTimes, foxArmETY - 50/jpgTimes,(84+10)/jpgTimes,(113+10)/jpgTimes);
+    
+    FoxCamera.draw(foxArmETX + 30/jpgTimes, foxArmETY - 100/jpgTimes, (305-50)/jpgTimes,(205-50)/jpgTimes);
+    
+}
+
+
+//------------------------------//
+//          Rabbit              //
+//------------------------------//
 
 void ofApp::drawRabDef(){
     //draw hands
@@ -295,12 +427,28 @@ void ofApp::drawRabDef(){
 }
 
 void ofApp::drawRabStand(){
+    //
+    ofSetColor(0);
+    ofSetLineWidth(15);
+    ofNoFill();
+    
+    ofDrawBezier(rabStandCenterPosX + 120/jpgTimes, rabStandCenterPosY + 500/jpgTimes, rabStandCenterPosX + 90/jpgTimes, rabStandCenterPosY + 600/jpgTimes, rabStandCenterPosX + 90/jpgTimes, rabStandCenterPosY + 720/jpgTimes, rabStandCenterPosX + 120/jpgTimes,rabStandCenterPosY + 850/jpgTimes);
+    
+    ofDrawBezier(rabStandCenterPosX + 340/jpgTimes, rabStandCenterPosY + 500/jpgTimes, rabStandCenterPosX + 310/jpgTimes, rabStandCenterPosY + 600/jpgTimes, rabStandCenterPosX + 310/jpgTimes, rabStandCenterPosY + 720/jpgTimes, rabStandCenterPosX + 340/jpgTimes, rabStandCenterPosY + 850/jpgTimes);
+    
+    ofSetColor(255);
+    
+    //Shoes
+    RabbitShoe.draw(rabbitStandCenter + ofVec2f(50/jpgTimes,850/jpgTimes),(108+10)/jpgTimes,(77+10)/jpgTimes);
+    RabbitShoe.draw(rabbitStandCenter + ofVec2f(270/jpgTimes,850/jpgTimes),(108+10)/jpgTimes,(77+10)/jpgTimes);
+    
     ofSetColor(255);
     
     RabbitLEar.draw(rabbitStandCenter + ofVec2f(150/jpgTimes, -850/jpgTimes),243/jpgTimes,400/jpgTimes);
     RabbitREar.draw(rabbitStandCenter + ofVec2f(400/jpgTimes, -840/jpgTimes),306/jpgTimes,400/jpgTimes);
     RabbitHead.draw(rabbitStandCenter + ofVec2f(-100/jpgTimes, -500/jpgTimes),716/jpgTimes,526/jpgTimes);
     RabbitBody.draw(rabbitStandCenter, 468/jpgTimes, 551/jpgTimes);
+
     
 }
 
@@ -337,7 +485,7 @@ void ofApp::drawRabForwardB(){
     RabbitShoe.draw(rabbitCenter + ofVec2f(350/jpgTimes,850/jpgTimes),(108+10)/jpgTimes,(77+10)/jpgTimes);
 }
 
-void ofApp::drawRabEyeA(){
+void ofApp::drawRabEyeA(){ //Open Eye
     ofFill();
     
     ofSetColor(255);
@@ -349,18 +497,10 @@ void ofApp::drawRabEyeA(){
     ofDrawCircle(rabbitCenter + ofVec2f(320/jpgTimes,-300/jpgTimes), rabEyeR-5);
     
     ofSetColor(255);
-
-    
-//    ofDrawCircle(rabEyePos, rabEyeR);
-//    ofDrawCircle(rabEyePos + ofVec2f(260/jpgTimes,0), rabEyeR);
-
-//    ofSetColor(0);
-//    ofDrawCircle(rabEyePosA + ofVec2f(-10/jpgTimes,0), rabEyeR-5);
-//    ofDrawCircle(rabEyePosA + ofVec2f(250/jpgTimes,0), rabEyeR-5);
     
 }
 
-void ofApp::drawRabEyeB(){
+void ofApp::drawRabEyeB(){ //Close Eye
     ofSetColor(183, 131, 152);
     ofSetLineWidth(5);
     ofNoFill();
@@ -372,6 +512,33 @@ void ofApp::drawRabEyeB(){
     
     ofSetColor(255);
 
+}
+
+void ofApp::drawRabEyeA1(){
+    ofFill();
+    
+    ofSetColor(255);
+    ofDrawCircle(rabEyePos, rabEyeR);
+    ofDrawCircle(rabEyePos + ofVec2f(260/jpgTimes,0), rabEyeR);
+
+    ofSetColor(0);
+    ofDrawCircle(rabEyePosA + ofVec2f(-10/jpgTimes,0), rabEyeR-5);
+    ofDrawCircle(rabEyePosA + ofVec2f(250/jpgTimes,0), rabEyeR-5);
+    
+    ofSetColor(255);
+}
+
+void ofApp::drawRabEyeB1(){
+    ofSetColor(183, 131, 152);
+    ofSetLineWidth(5);
+    ofNoFill();
+    
+    ofDrawBezier(rabStandCenterPosX + 30/jpgTimes, rabStandCenterPosY - 300/jpgTimes, rabStandCenterPosX + 30/jpgTimes, rabStandCenterPosY - 250/jpgTimes, rabStandCenterPosX + 160/jpgTimes, rabStandCenterPosY - 250/jpgTimes,rabStandCenterPosX + 160/jpgTimes, rabStandCenterPosY - 300/jpgTimes );
+    
+    ofDrawBezier(rabStandCenterPosX + 260/jpgTimes, rabStandCenterPosY - 300/jpgTimes, rabStandCenterPosX + 260/jpgTimes, rabStandCenterPosY - 250/jpgTimes, rabStandCenterPosX + 390/jpgTimes, rabStandCenterPosY - 250/jpgTimes,rabStandCenterPosX + 390/jpgTimes, rabStandCenterPosY - 300/jpgTimes );
+
+    ofSetColor(255);
+    
 }
 
 
@@ -434,25 +601,49 @@ void ofApp::mouseMoved(int x, int y ){
     int posX = ofMap(x,0,ofGetWidth(),30/jpgTimes,50/jpgTimes);
     int posY = ofMap(y,0,ofGetHeight(), -140/jpgTimes,-100/jpgTimes);
     
-    int posXA = ofMap(x,0,ofGetWidth(),20/jpgTimes,60/jpgTimes);
+    int posXA = ofMap(x,0,ofGetWidth(),20/jpgTimes,70/jpgTimes);
     int posYA = ofMap(y,0,ofGetHeight(), -150/jpgTimes, -90/jpgTimes);
     
-    foxEyePos = foxCenter + ofVec2f(posX, posY);
-    foxEyePosA = foxCenter + ofVec2f(posXA, posYA);
+    foxEyePos = foxStandCenter + ofVec2f(posX, posY);
+    foxEyePosA = foxStandCenter + ofVec2f(posXA, posYA);
     
-    rabEyePos = rabbitCenter + ofVec2f(posX + 5, posY - 30);
-    rabEyePosA = rabbitCenter + ofVec2f(posXA + 5, posYA - 30);
+    rabEyePos = rabbitStandCenter + ofVec2f(posX + 5, posY - 30);
+    rabEyePosA = rabbitStandCenter + ofVec2f(posXA + 5, posYA - 30);
+    
+    //draw Arms in the main scene
+    int ArmSTPosX = ofMap(x,0,ofGetWidth(), 0, 0); // ArmST = foxStandCenter + ofVec2f(100/jpgTimes,100/jpgTimes);
+    int ArmSTPosY = ofMap(y,0,ofGetHeight(), 0, 0);
+    
+    int ArmSMPosX = ofMap(x,0,ofGetWidth(), -30/jpgTimes, 30/jpgTimes ); //foxStandCenterPosX
+    int ArmSMPosY = ofMap(y,0,ofGetHeight(), 100/jpgTimes, 150/jpgTimes );
+
+    int ArmEMPosX = ofMap(x,0,ofGetWidth(), -130/jpgTimes, 30/jpgTimes );
+    int ArmEMPosY = ofMap(y,0,ofGetHeight(), 230/jpgTimes, 300/jpgTimes );
+
+    int ArmETPosX = ofMap(x,0,ofGetWidth(), -330/jpgTimes, -130/jpgTimes );
+    int ArmETPosY = ofMap(y,0,ofGetHeight(), 150/jpgTimes, 400/jpgTimes );
+    
+    foxArmSTX = foxStandCenterPosX + 100/jpgTimes + ArmSTPosX;
+    foxArmSTY = foxStandCenterPosY + 100/jpgTimes + ArmSTPosY;
+    foxArmSMX = foxStandCenterPosX + 100/jpgTimes + ArmSMPosX;
+    foxArmSMY = foxStandCenterPosY + 100/jpgTimes + ArmSMPosY;
+    foxArmEMX = foxStandCenterPosX + 100/jpgTimes + ArmEMPosX;
+    foxArmEMY = foxStandCenterPosY + 100/jpgTimes + ArmEMPosY;
+    foxArmETX = foxStandCenterPosX + 100/jpgTimes + ArmETPosX;
+    foxArmETY = foxStandCenterPosY + 100/jpgTimes + ArmETPosY;
 
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
 
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
 
+    
 }
 
 //--------------------------------------------------------------
