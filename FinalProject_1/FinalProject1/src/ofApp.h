@@ -22,14 +22,25 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
     void drawFoxDef();
+    void drawFoxStand();
     void drawFoxForwardA();
     void drawFoxForwardB();
+    void drawFoxEyeA();
+    
     
     void drawRabDef();
+    void drawRabStand();
     void drawRabForwardA();
     void drawRabForwardB();
     
+    void drawRabEyeA();
+    void drawRabEyeB();
+    
     void drawFirstScene();
+    void drawMainSceneA();
+
+    bool useFbo = false;
+    ofFbo fbo;
 
 		
 };
