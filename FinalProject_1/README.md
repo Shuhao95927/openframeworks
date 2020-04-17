@@ -24,7 +24,7 @@ The ideal user is the people who have seen the musical **_Come From Away_** or a
 - Perfect the details (e.g. make the animation smoother, draw details for the scene...)
 
 ## Process questions
-- I still have the display problem when I draw Bezier curve.
+- I still have the display problem when I draw a bezier curve.
 - I am also confused about how to make smooth animation (e.g. walking). At present the walking animation of the character is achieved by alternating two static frames.
 
 ## Screenshots
