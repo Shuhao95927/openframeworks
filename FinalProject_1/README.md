@@ -1,14 +1,13 @@
-# Project 1 - Stop the World
+# Project 1 - Stop The World
 
 ## Project concept
-I'd like to make an animation based on the song Stop The World from the musical Come From Away.
+I'd like to make an animation based on the song *Stop The World* from the musical *Come From Away*. This song tells the inner dialogue of two people who like each other when they walk to The Dover Fault.
+
 Users can have some simple interactions with the charater (e.g. moving charatcers, interacting with the scene and other characters, changing the scenes)
 
-Here is the design for the two main characters <br/>
-![](imgs/character.jpg)
-
+Here is the design for the two main characters and the main scenes<br/>
+![](imgs/character.jpg=1920/2x1080/2)
 ![scene A](imgs/sceneA.jpg)
-
 ![scene B](imgs/sceneB.jpg)
 
 
