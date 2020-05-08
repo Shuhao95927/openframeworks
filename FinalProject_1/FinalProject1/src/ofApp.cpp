@@ -25,8 +25,13 @@ int rabEyeR = 14;
 
 int jpgTimes = 6;
 
+//scene switch
+int movePosX;
+bool shot = false;
+
 
 //control
+//int Current_elapsedTime = ofGetElapsedTimeMillis();
 int slideNumber = 0;
 float currentTime = 0;
 float countFrame = ofGetFrameNum();
@@ -114,8 +119,7 @@ void ofApp::setup(){
     doveFault.load("music/Lee MacDougall,Sharon Wheatley - The Dover Fault.mp3");
     StopTheWorld.load("music/Lee MacDougall,'Come From Away' Company,Sharon Wheatley - Stop the World.mp3");
     
-    doveFault.play();
-
+//    doveFault.play();
 
 }
 
@@ -129,7 +133,7 @@ void ofApp::update(){
         }else{
             slideNumber++;
             currentTime = ofGetFrameNum();
-            cout<<slideNumber<<endl;
+//            cout<<currentTime<<endl;
         }
 
     }
@@ -138,6 +142,13 @@ void ofApp::update(){
         currVecFox = currVecFox + (targetVecFox - currVecFox) * 0.3;
     }
 
+    if (shot == true){
+
+        if(ofGetElapsedTimeMillis() >= time + 200){
+            shot = false;
+        }
+    }
+    cout<<ofGetElapsedTimeMillis()<<endl;
 }
 
 //--------------------------------------------------------------
@@ -216,6 +227,7 @@ void ofApp::draw(){
     
 //    drawFoxDef();
 //    drawFoxEyeA();
+    drawCameraShot();
 
     if(slideNumber == 3){
         drawRabDef();
@@ -540,7 +552,22 @@ void ofApp::drawRabEyeB1(){
     ofSetColor(255);
     
 }
+//-----------------------------------
 
+void ofApp::drawCameraShot(){
+    if(shot == false){
+        ofSetColor(255,0,0);
+        ofSetLineWidth(3);
+        ofNoFill();
+        ofDrawRectangle(mouseX,mouseY,shotSize*2,shotSize);
+    }
+    
+    if(shot == true){
+        ofFill();
+        ofSetColor(255,255,255,alpha);
+        ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
+    }
+}
 
 //-----------------------------------
 
@@ -551,12 +578,11 @@ void ofApp::drawFirstScene(){
 
 void ofApp::drawMainSceneA(){
     
-    SceneMainB.draw(0,373,1920,707);
-    SceneMainC.draw(0,293,1920,170);
+    SceneMainB.draw(-movePosX*0.5,373,1920*1.1,707*1.1);
+    SceneMainC.draw(movePosX*0.5,293,1920*1.1,170*1.1);
     SceneMainA.draw(346,530,1554,550);
 
 }
-
 
 //-----------------------------------
 
@@ -598,6 +624,11 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
+    
+    mouseX = x;
+    mouseY = y;
+    
+    
     int posX = ofMap(x,0,ofGetWidth(),30/jpgTimes,50/jpgTimes);
     int posY = ofMap(y,0,ofGetHeight(), -140/jpgTimes,-100/jpgTimes);
     
@@ -631,6 +662,10 @@ void ofApp::mouseMoved(int x, int y ){
     foxArmEMY = foxStandCenterPosY + 100/jpgTimes + ArmEMPosY;
     foxArmETX = foxStandCenterPosX + 100/jpgTimes + ArmETPosX;
     foxArmETY = foxStandCenterPosY + 100/jpgTimes + ArmETPosY;
+    
+    //----
+    int switchPosX = ofMap(x,0,ofGetWidth(),-10,10);
+    movePosX = switchPosX;
 
 }
 
@@ -642,7 +677,13 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+    
+    time = ofGetElapsedTimeMillis();
+    
+    if(button == 0){
+        shot = true;
+        time = ofGetElapsedTimeMillis();
+    }
     
 }
 

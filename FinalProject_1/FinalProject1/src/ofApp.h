@@ -22,6 +22,14 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
     //-------------------------
+    int mouseX;
+    int mouseY;
+    int shotSize = 100;
+    int alpha = 255;
+    uint64_t time;
+    
+    void drawCameraShot();
+    //-------------------------
     
     void drawFoxDef();
     void drawFoxStand();
