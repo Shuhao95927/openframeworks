@@ -1,38 +1,24 @@
-# Project 1 - Stop The World
+# Project 2 - Data Visualization - NASA NeoWs API
 
 ## Project concept
-I'd like to make an animation based on the song **_Stop The World_** from the musical **_Come From Away_**. This song tells the inner dialogue of two people who like each other when they walk to the Dover Fault.
-
-Users can interact with the charater (e.g. moving charatcers, interacting with the scene, shift the scene...)
-
-I designed two main characters according to their personalities -- one is a fox, the other is a rabbit. Users can interact with one of them when their part of music is played.
-I also designed the Dover Fault as the main scene of the story.
-
-Here is the design for the two main characters and the main scenes
-![](imgs/character.jpg)
-![scene A](imgs/sceneA.jpg)
-![scene B](imgs/sceneB.jpg)
-
-In this project, I wish audiences can enjoy the love and warmth behind the music through this lovely animation and interactive experience. 
+In this project, I used the NASA NeoWs API to simualte how those Near Earth Asteroids are closed to Earth. Users can release an Asteroids by pressing the space bar. At same time, users can adjust sliders to change the orbit, speed and size of the Asteroid.
 
 ## The ideal user
-The ideal user is the people who have seen the musical **_Come From Away_** or anyone who likes musicals.
+For everyone who live on earth
 
 ## Future iterations
-- Add more animations and interactions (It is supposed to be a 5 minutes experience)
-- Add subtitles (lyrics)
-- Perfect the details (e.g. make the animation smoother, draw details for the scene...)
+- Add the detection function: when an Asteroid gets too close to Earth, people will fire a missile to destroy it.
+- Add more visual effects (e.g. stars in the background)
 
 ## Process questions
-- I still have the display problem when I draw a bezier curve.
-- I am also confused about how to make smooth animation (e.g. walking). At present the walking animation of the character is achieved by alternating two static frames.
+- I want to create a series of Asteroids on the screen when user presses the Space bar several times. So I'd like to know how can I create an array of object in Openframeworks
 
 ## Screenshots
-![scene A](imgs/img1.png)
-![scene B](imgs/img2.png)
+![scene A](imgs/screenA.png)
+![scene B](imgs/screenB.png)
 
 ## Youtube Link 
-[![Youtube Video](imgs/sceneB.jpg)](https://www.youtube.com/watch?v=4KtmKsTJcdA&feature=youtu.be)
+[![Youtube Video](imgs/screenB.png)](https://youtu.be/e9XKrNvIh6I)
 
 
 
