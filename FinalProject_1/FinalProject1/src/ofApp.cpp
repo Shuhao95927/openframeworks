@@ -1,9 +1,13 @@
 #include "ofApp.h"
 
+
 int foxCenterPosX = 1350;
 int foxCenterPosY = 560;
 int foxStandCenterPosX = 1600;
 int foxStandCenterPosY = 800;
+int foxFinalPosX = 480 - 170;
+int foxFinalPosY = 530;
+
 int foxEyeR = 15;
 
 //define the fox's arm in the main scene
@@ -21,12 +25,24 @@ int rabCenterPosX = 1200;
 int rabCenterPosY = 500;
 int rabStandCenterPosX = 1300;
 int rabStandCenterPosY = 630;
+int rabFinalPosX = 1440 - 100;
+int rabFinalPosY = 600;
+
 int rabEyeR = 14;
 
 int jpgTimes = 6;
 
 //scene switch
 int movePosX;
+
+int detectWaveSize = 0;
+int rotateDegrees = 0;
+int rotateDegreesA = 100;
+int rotateDegreesB = 80;
+
+ofColor BG1(190,233,255);
+
+
 bool shot = false;
 
 
@@ -47,6 +63,7 @@ ofImage FoxStandLH;
 ofImage FoxCamera;
 ofVec2f foxCenter(foxCenterPosX,foxCenterPosY);
 ofVec2f foxStandCenter(foxStandCenterPosX, foxStandCenterPosY);
+ofVec2f foxFinalCenter(foxFinalPosX,foxFinalPosY);
 
 ofImage RabbitHead;
 ofImage RabbitBody;
@@ -57,33 +74,44 @@ ofImage RabbitLHdef;
 ofImage RabbitShoe;
 ofVec2f rabbitCenter(rabCenterPosX, rabCenterPosY);
 ofVec2f rabbitStandCenter(rabStandCenterPosX,rabStandCenterPosY);
+ofVec2f rabFinalCenter(rabFinalPosX,rabFinalPosY);
+
 
 ofImage SceneIntro;// First scene to introduce the character and backgrond.
-ofImage SceneMain;
-ofImage SceneMainA;
-ofImage SceneMainB;
-ofImage SceneMainC;
+ofImage SceneIntroA,SceneIntroB,SceneIntroC;
+ofImage SceneMain,SceneMainA,SceneMainB,SceneMainC;
+ofImage SceneLastA,SceneLastB;
+
 
 ofVec2f currVecFox(0,0);
 ofVec2f targetVecFox;
 
 ofVec2f foxEyePos;
 ofVec2f foxEyePosA;
+ofVec2f foxEyePosLast;
+ofVec2f foxEyePosLastA;
+
+
 ofVec2f rabEyePos;
 ofVec2f rabEyePosA;
+ofVec2f rabEyePosLast;
+ofVec2f rabEyePosLastA;
+
 
 
 
 //Sound
 ofSoundPlayer doveFault;
 ofSoundPlayer StopTheWorld;
+ofSoundPlayer cameraSound;
+
 
 
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetFrameRate(60);
-    ofBackground(120);
+    ofSetCircleResolution(100);
     
     fbo.allocate(ofGetWidth(), ofGetHeight(),GL_RGBA);
     fbo.begin();
@@ -110,16 +138,29 @@ void ofApp::setup(){
 
     
     SceneIntro.load("scene/Scene1-1.png");
+    SceneIntroA.load("scene/scene1-01.png");
+    SceneIntroB.load("scene/scene1-02.png");
+    SceneIntroC.load("scene/scene1-03.png");
     SceneMain.load("scene/scene2.jpg");
     SceneMainA.load("scene/scene2-1.png");
     SceneMainB.load("scene/scene2-2.png");
     SceneMainC.load("scene/scene2-3.png");
+    SceneLastA.load("scene/scene3-Center.png");
+    SceneLastB.load("scene/scene3-BG.png");
 
     
     doveFault.load("music/Lee MacDougall,Sharon Wheatley - The Dover Fault.mp3");
     StopTheWorld.load("music/Lee MacDougall,'Come From Away' Company,Sharon Wheatley - Stop the World.mp3");
+    cameraSound.load("music/cameraClick.mp3");
+    font1.load("fonts/Prompt-Bold.ttf",15 );
+    font2.load("fonts/Prompt-ExtraLight.ttf",10);
     
-//    doveFault.play();
+    doveFault.play();
+    
+    fbo.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA); // higher precision alpha (no artifacts)
+    fbo.begin();
+    ofClear(255,255,255, 0);
+    fbo.end();
 
 }
 
@@ -148,14 +189,31 @@ void ofApp::update(){
             shot = false;
         }
     }
+    
+    if(detectWaveSize <= 200){
+               detectWaveSize = detectWaveSize + 5;
+           }else{
+               detectWaveSize = 0;
+           }
+    
     cout<<ofGetElapsedTimeMillis()<<endl;
+    
+    fbo.begin();
+    ofFill();
+    ofSetColor(0,25);
+    ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
+    drawStars();
+    drawEndScene();
+    fbo.end();
+
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(190,233,255);
+    ofBackground(BG1);
     
-    if(currentTime >= 100 && foxCenterPosX + 751/jpgTimes <= 0){ //1740
+
+    if(ofGetElapsedTimeMillis()/1000 >= 32 && ofGetElapsedTimeMillis()/1000<= 90 && foxCenterPosX + 751/jpgTimes <= 0){ //1740
         doveFault.stop();
         
         drawMainSceneA();
@@ -180,7 +238,6 @@ void ofApp::draw(){
         
     }else{
         drawFirstScene(); //1st Scene
-        
     }
     
     if(currentTime == 1740){
@@ -224,11 +281,53 @@ void ofApp::draw(){
         }
 }
 
-    
-//    drawFoxDef();
-//    drawFoxEyeA();
-    drawCameraShot();
 
+    if(ofGetElapsedTimeMillis()/1000 >= 32 && ofGetElapsedTimeMillis()/1000 <= 90){
+        drawCameraShot();
+    }else if(ofGetElapsedTimeMillis()/1000 > 90 && ofGetElapsedTimeMillis()/1000 <= 121){
+        SceneLastB.draw(0,0, 1920, 1080);
+        SceneLastA.draw(ofGetWidth()/2-1753/10,ofGetHeight()/2-1877/10,1753/5,1877/5);
+        
+        ofFill();
+        ofSetColor(255);
+        ofDrawSphere(ofGetWidth()* 1/4 - 50, ofGetHeight()/2, 100);
+        ofDrawSphere(ofGetWidth()* 3/4 + 50, ofGetHeight()/2, 100);
+        
+        FoxHead.draw(foxFinalCenter + ofVec2f(-35, -100),927/jpgTimes * 1.5,751/jpgTimes * 1.5);
+        drawFoxFinalEye();
+        
+        RabbitLEar.draw(rabFinalCenter + ofVec2f(150/jpgTimes * 1.5, -850/jpgTimes * 1.5),243/jpgTimes * 1.5,400/jpgTimes * 1.5);
+        RabbitREar.draw(rabFinalCenter + ofVec2f(400/jpgTimes * 1.5, -840/jpgTimes * 1.5),306/jpgTimes * 1.5,400/jpgTimes * 1.5);
+        RabbitHead.draw(rabFinalCenter + ofVec2f(-100/jpgTimes * 1.5, -500/jpgTimes * 1.5),716/jpgTimes * 1.5,526/jpgTimes * 1.5);
+        drawRabFinalEye();
+        
+        ofSetColor(255,200-detectWaveSize);
+        ofDrawEllipse(ofGetWidth()/2,ofGetHeight()/2,detectWaveSize,detectWaveSize);
+        
+    }else if(ofGetElapsedTimeMillis()/1000 > 121){
+        ofFill();
+        ofBackground(0);
+        
+        fbo.draw(0,0);
+        drawStars();
+        
+        ofSetColor(20,190,185);
+        ofDrawSphere(ofGetWidth()* 1/4 - 50, ofGetHeight()/2, 100);
+        ofDrawSphere(ofGetWidth()* 3/4 + 50, ofGetHeight()/2, 100);
+        
+        ofSetColor(255);
+        FoxHead.draw(foxFinalCenter + ofVec2f(-35, -100),927/jpgTimes * 1.5,751/jpgTimes * 1.5);
+        drawFoxFinalEye();
+        
+        RabbitLEar.draw(rabFinalCenter + ofVec2f(150/jpgTimes * 1.5, -850/jpgTimes * 1.5),243/jpgTimes * 1.5,400/jpgTimes * 1.5);
+        RabbitREar.draw(rabFinalCenter + ofVec2f(400/jpgTimes * 1.5, -840/jpgTimes * 1.5),306/jpgTimes * 1.5,400/jpgTimes * 1.5);
+        RabbitHead.draw(rabFinalCenter + ofVec2f(-100/jpgTimes * 1.5, -500/jpgTimes * 1.5),716/jpgTimes * 1.5,526/jpgTimes * 1.5);
+        drawRabFinalEye();
+        
+        drawEndScene();
+
+    }
+                                                                                                                                                //
     if(slideNumber == 3){
         drawRabDef();
         drawRabEyeB();
@@ -246,6 +345,100 @@ void ofApp::draw(){
     }
     
     
+    timeString = "Time is " + ofToString(ofGetElapsedTimeMillis()/1000);  //ofGetElapsedTimeMillis()/1000
+    ofSetColor(255);
+    font1.drawString(lyrics, ofGetWidth() * 0.03, ofGetHeight() * 0.9);
+//    font1.drawString(timeString, ofGetWidth() * 0.03, ofGetHeight() * 0.8);
+//PART1
+    if(ofGetElapsedTimeMillis()/1000>32 && ofGetElapsedTimeMillis()/1000<35 ){
+        lyrics = "Stop the world";
+    }else if(ofGetElapsedTimeMillis()/1000>35 && ofGetElapsedTimeMillis()/1000<37){
+        lyrics = "Take a picture";
+    }else if(ofGetElapsedTimeMillis()/1000>37 && ofGetElapsedTimeMillis()/1000<39){
+        lyrics = "Try to capture";
+    }else if(ofGetElapsedTimeMillis()/1000>39 && ofGetElapsedTimeMillis()/1000<41){
+        lyrics = "To ensure this moment lasts";
+    }else if(ofGetElapsedTimeMillis()/1000>41 && ofGetElapsedTimeMillis()/1000<43){
+        lyrics = "We're still in it, but";
+    }else if(ofGetElapsedTimeMillis()/1000>43 && ofGetElapsedTimeMillis()/1000<45){
+        lyrics = "In a minute -";
+    }else if(ofGetElapsedTimeMillis()/1000>45 && ofGetElapsedTimeMillis()/1000<47){
+        lyrics = "That's the limit -";
+    }else if(ofGetElapsedTimeMillis()/1000>47 && ofGetElapsedTimeMillis()/1000<49){
+        lyrics = "And this present will be past";
+    }else if(ofGetElapsedTimeMillis()/1000>49 && ofGetElapsedTimeMillis()/1000<52){
+        lyrics = "So here we are";
+    }else if(ofGetElapsedTimeMillis()/1000>52 && ofGetElapsedTimeMillis()/1000<57){
+        lyrics = "Where the world has come together";
+    }else if(ofGetElapsedTimeMillis()/1000>57 && ofGetElapsedTimeMillis()/1000<61){
+        lyrics = "So here she will be";
+    }else if(ofGetElapsedTimeMillis()/1000>61 && ofGetElapsedTimeMillis()/1000<65){
+        lyrics = "In this picture, forever";
+    }else if(ofGetElapsedTimeMillis()/1000>65 && ofGetElapsedTimeMillis()/1000<89){
+        lyrics = " ";//PART2
+    }else if(ofGetElapsedTimeMillis()/1000>89 && ofGetElapsedTimeMillis()/1000<91){
+        lyrics = "Stop the world";
+    }else if(ofGetElapsedTimeMillis()/1000>92 && ofGetElapsedTimeMillis()/1000<94){
+        lyrics = "Seize the moment";
+    }else if(ofGetElapsedTimeMillis()/1000>94 && ofGetElapsedTimeMillis()/1000<98){
+        lyrics = "But the minute he goes you're alone, and it's through";
+    }else if(ofGetElapsedTimeMillis()/1000>98 && ofGetElapsedTimeMillis()/1000<100){
+        lyrics = "Pinch yourself";
+    }else if(ofGetElapsedTimeMillis()/1000>100 && ofGetElapsedTimeMillis()/1000<102){
+        lyrics = "Tell yourself:";
+    }else if(ofGetElapsedTimeMillis()/1000>102 && ofGetElapsedTimeMillis()/1000<106){
+        lyrics = "You're just dreaming, that means he'll forget about you";
+    }else if(ofGetElapsedTimeMillis()/1000>106 && ofGetElapsedTimeMillis()/1000<109){
+        lyrics = "But here we are";
+    }else if(ofGetElapsedTimeMillis()/1000>109 && ofGetElapsedTimeMillis()/1000<113){
+        lyrics = "Where the continents once crashed together";
+    }else if(ofGetElapsedTimeMillis()/1000>113 && ofGetElapsedTimeMillis()/1000<121){
+        lyrics = "Before they went their separate ways forever, so"; //PART3
+    }else if(ofGetElapsedTimeMillis()/1000>121 && ofGetElapsedTimeMillis()/1000<127){
+        lyrics = "Stop the world";
+    }else if(ofGetElapsedTimeMillis()/1000>127 && ofGetElapsedTimeMillis()/1000<129){
+        lyrics = "From spinning 'round";
+    }else if(ofGetElapsedTimeMillis()/1000>129 && ofGetElapsedTimeMillis()/1000<132){
+        lyrics = "I wanna look out";
+    }else if(ofGetElapsedTimeMillis()/1000>132 && ofGetElapsedTimeMillis()/1000<134){
+        lyrics = "Overlooking something";
+    }else if(ofGetElapsedTimeMillis()/1000>134 && ofGetElapsedTimeMillis()/1000<136){
+        lyrics = "Worth taking the time";
+    }else if(ofGetElapsedTimeMillis()/1000>136 && ofGetElapsedTimeMillis()/1000<138){
+        lyrics = "to stop flying by (And look down)";
+    }else if(ofGetElapsedTimeMillis()/1000>138 && ofGetElapsedTimeMillis()/1000<140){
+        lyrics = "And look down (Stop the world)";
+    }else if(ofGetElapsedTimeMillis()/1000>140 && ofGetElapsedTimeMillis()/1000<142){
+        lyrics = "Stopping to stare, (And look 'round)";
+    }else if(ofGetElapsedTimeMillis()/1000>142 && ofGetElapsedTimeMillis()/1000<144){
+        lyrics = "And look 'round. (Stop the world)";
+    }else if(ofGetElapsedTimeMillis()/1000>144 && ofGetElapsedTimeMillis()/1000<146){
+        lyrics = "Just tell them, (Ahhhh) NOW";
+    }else if(ofGetElapsedTimeMillis()/1000>146 && ofGetElapsedTimeMillis()/1000<148){
+        lyrics = "and look down";
+    }else if(ofGetElapsedTimeMillis()/1000>=148 && ofGetElapsedTimeMillis()/1000<=149){
+        lyrics = "Take a picture";
+    }else if(ofGetElapsedTimeMillis()/1000>149 && ofGetElapsedTimeMillis()/1000<=151){
+        lyrics = "Of the scenery";
+    }else if(ofGetElapsedTimeMillis()/1000>151 && ofGetElapsedTimeMillis()/1000<=152){
+        lyrics = "Of a lookout";
+    }else if(ofGetElapsedTimeMillis()/1000>152 && ofGetElapsedTimeMillis()/1000<=153){
+        lyrics = "Of a moment";
+    }else if(ofGetElapsedTimeMillis()/1000>153 && ofGetElapsedTimeMillis()/1000<=154){
+        lyrics = "Which is over";
+    }else if(ofGetElapsedTimeMillis()/1000>154 && ofGetElapsedTimeMillis()/1000<=156){
+        lyrics = "Of the ocean";
+    }else if(ofGetElapsedTimeMillis()/1000>156 && ofGetElapsedTimeMillis()/1000<158){
+        lyrics = "Of the river";
+    }else if(ofGetElapsedTimeMillis()/1000>158 && ofGetElapsedTimeMillis()/1000<160){
+        lyrics = "Of the trees";
+    }else if(ofGetElapsedTimeMillis()/1000>160 && ofGetElapsedTimeMillis()/1000<164){
+        lyrics = " ";
+    }else if(ofGetElapsedTimeMillis()/1000>164 && ofGetElapsedTimeMillis()/1000<168){
+        lyrics = "Stop the world";
+    }else if(ofGetElapsedTimeMillis()/1000>168 && ofGetElapsedTimeMillis()/1000<174){
+        lyrics = "Please";
+    }
 }
 
 //------------------------------//
@@ -392,6 +585,35 @@ void ofApp::drawFoxEyeB1(){
     ofSetColor(255);
 }
 
+void ofApp::drawFoxFinalEye(){
+    
+    ofFill();
+    
+    ofSetColor(255);
+    ofDrawCircle(foxEyePosLast + ofVec2f(23,35), foxEyeR * 1.5);
+    ofDrawCircle(foxEyePosLast + ofVec2f(320/jpgTimes * 1.4 + 23,35), foxEyeR * 1.5);
+
+    ofSetColor(0);
+    ofDrawCircle(foxEyePosLastA + ofVec2f(-10/jpgTimes * 1.4 + 23,35), (foxEyeR-5) * 1.5);
+    ofDrawCircle(foxEyePosLastA + ofVec2f(310/jpgTimes * 1.4 + 23,35), (foxEyeR-5) * 1.5);
+    
+    ofSetColor(255);
+
+    
+//    ofFill();
+//
+//    ofSetColor(255);
+//    ofDrawCircle(rabEyePosLast + ofVec2f(7,-22), rabEyeR * 1.5);
+//    ofDrawCircle(rabEyePosLast + ofVec2f(260/jpgTimes * 1.5 + 7,-22), rabEyeR * 1.5);
+//
+//    ofSetColor(0);
+//    ofDrawCircle(rabEyePosLastA + ofVec2f(-10/jpgTimes * 1.5 + 7,-22), (rabEyeR-5)* 1.5);
+//    ofDrawCircle(rabEyePosLastA + ofVec2f(250/jpgTimes * 1.5 + 7,-22), (rabEyeR-5)* 1.5);
+//
+//    ofSetColor(255);
+}
+
+
 void ofApp::drawFoxArmsA1(){
 
     //draw arms
@@ -454,7 +676,23 @@ void ofApp::drawRabStand(){
     RabbitShoe.draw(rabbitStandCenter + ofVec2f(50/jpgTimes,850/jpgTimes),(108+10)/jpgTimes,(77+10)/jpgTimes);
     RabbitShoe.draw(rabbitStandCenter + ofVec2f(270/jpgTimes,850/jpgTimes),(108+10)/jpgTimes,(77+10)/jpgTimes);
     
+    //draw hands
+    RabbitLHdef.draw(rabbitStandCenter + ofVec2f(-210/jpgTimes,480/jpgTimes),(80+10)/jpgTimes,(80+10)/jpgTimes);
+    RabbitRHdef.draw(rabbitStandCenter + ofVec2f(630/jpgTimes,480/jpgTimes),(80+10)/jpgTimes,(80+10)/jpgTimes);
+    
+    //draw arms
+    ofSetColor(255,173,41);
+    ofSetLineWidth(13);
+    ofNoFill();
+    ofDrawBezier(rabStandCenterPosX + 100/jpgTimes, rabStandCenterPosY + 100/jpgTimes, rabStandCenterPosX - 100/jpgTimes, rabStandCenterPosY +200/jpgTimes, rabStandCenterPosX - 100/jpgTimes, rabStandCenterPosY + 400/jpgTimes, rabStandCenterPosX - 150/jpgTimes, rabStandCenterPosY + 500/jpgTimes);
+    
+    ofDrawBezier(rabStandCenterPosX + 380/jpgTimes, rabStandCenterPosY + 100/jpgTimes, rabStandCenterPosX + 610/jpgTimes, rabStandCenterPosY +200/jpgTimes, rabStandCenterPosX + 610/jpgTimes, rabStandCenterPosY + 400/jpgTimes, rabStandCenterPosX + 660/jpgTimes, rabStandCenterPosY + 500/jpgTimes);
+    
     ofSetColor(255);
+    
+    //arms
+    
+    
     
     RabbitLEar.draw(rabbitStandCenter + ofVec2f(150/jpgTimes, -850/jpgTimes),243/jpgTimes,400/jpgTimes);
     RabbitREar.draw(rabbitStandCenter + ofVec2f(400/jpgTimes, -840/jpgTimes),306/jpgTimes,400/jpgTimes);
@@ -540,6 +778,21 @@ void ofApp::drawRabEyeA1(){
     ofSetColor(255);
 }
 
+void ofApp::drawRabFinalEye(){
+    ofFill();
+     
+    ofSetColor(255);
+    ofDrawCircle(rabEyePosLast + ofVec2f(7,-22), rabEyeR* 1.5);
+    ofDrawCircle(rabEyePosLast + ofVec2f(260/jpgTimes * 1.5 + 7,-22), rabEyeR * 1.5);
+
+    ofSetColor(0);
+    ofDrawCircle(rabEyePosLastA + ofVec2f(-10/jpgTimes * 1.5 + 7,-22), (rabEyeR-5)* 1.5);
+    ofDrawCircle(rabEyePosLastA + ofVec2f(250/jpgTimes * 1.5 + 7,-22), (rabEyeR-5)* 1.5);
+    
+    ofSetColor(255);
+}
+
+
 void ofApp::drawRabEyeB1(){
     ofSetColor(183, 131, 152);
     ofSetLineWidth(5);
@@ -556,24 +809,27 @@ void ofApp::drawRabEyeB1(){
 
 void ofApp::drawCameraShot(){
     if(shot == false){
-        ofSetColor(255,0,0);
-        ofSetLineWidth(3);
-        ofNoFill();
-        ofDrawRectangle(mouseX,mouseY,shotSize*2,shotSize);
+//        ofSetColor(255,0,0);
+//        ofSetLineWidth(3);
+//        ofNoFill();
+//        ofDrawRectangle(mouseX,mouseY,shotSize*2,shotSize);
     }
     
     if(shot == true){
         ofFill();
         ofSetColor(255,255,255,alpha);
         ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
+        cameraSound.play();
     }
 }
 
 //-----------------------------------
 
 void ofApp::drawFirstScene(){
-    SceneIntro.draw(0,0,1920,1080);//(jpgTimes/5
-    
+//    SceneIntro.draw(0,0,1920,1080);//(jpgTimes/5
+    SceneIntroC.draw(0,0, 1920, 1080);
+    SceneIntroB.draw(0,0, 1920, 1080);
+    SceneIntroA.draw(0,0, 1920, 1080);
 }
 
 void ofApp::drawMainSceneA(){
@@ -584,12 +840,71 @@ void ofApp::drawMainSceneA(){
 
 }
 
+void ofApp::drawEndScene(){
+        
+    ofVec2f earthCenter(ofGetWidth()/2,ofGetHeight()/2); //
+        
+        
+    ofVec2f rotateLunar = earthCenter + ofVec2f(50,50);
+    ofVec2f rotateLunarA = earthCenter + ofVec2f(100,100);
+    ofVec2f rotateLunarB = earthCenter + ofVec2f(150,150);
+    ofVec2f rotateLunarC = earthCenter + ofVec2f(200,200);
+    ofVec2f rotateLunarD = earthCenter + ofVec2f(270,270);
+
+
+
+    ofVec2f lunar = rotateLunar.rotate(rotateDegrees++,earthCenter);
+    ofVec2f lunarA = rotateLunarA.rotate(rotateDegreesA++,earthCenter);
+    ofVec2f lunarB = rotateLunarB.rotate(rotateDegreesB++,earthCenter);
+    ofVec2f lunarC = rotateLunarC.rotate((rotateDegreesB++)*0.5,earthCenter);
+    ofVec2f lunarD = rotateLunarD.rotate((rotateDegrees++)*1.1,earthCenter);
+
+        
+        ofSetCircleResolution(100);
+    
+        ofSetColor(238,36,83);
+        ofDrawEllipse(lunar,14,14);
+    
+        ofSetColor(255);
+        ofDrawEllipse(lunarA,10,10);
+        
+        ofSetColor(255,206,0);
+        ofDrawEllipse(lunarB,8,8);
+    
+        ofSetColor(255,206,0);
+        ofDrawEllipse(lunarC,8,8);
+        
+        ofSetColor(97,153,52);
+        ofDrawEllipse(lunarD,6,6);
+        
+        ofSetColor(50,60,255);
+        ofDrawEllipse(earthCenter,50,50);
+        ofSetColor(255);
+
+        
+}
+
+void ofApp::drawStars(){
+    int sx,sy;
+    
+    if(ofGetFrameNum() % 6 == 0){
+        sx = ofRandom(ofGetWidth());
+        sy = ofRandom(ofGetHeight());
+    }
+        ofVec2f starPos(sx,sy);
+        ofSetColor(255);
+        ofDrawSphere(starPos.x, starPos.y, ofRandom(1,3));
+}
+
+
 //-----------------------------------
 
 void ofApp::keyPressed(int key){
     int stepFox = 10;
     int stepRab = 15;
     if(key == 'a'){
+        if(ofGetElapsedTimeMillis()/1000 < 32 || foxCenterPosX + 751/jpgTimes >= 0 ){
+            
         foxCenter.x = foxCenter.x - stepFox;
         foxCenterPosX = foxCenterPosX - stepFox;
         
@@ -601,15 +916,28 @@ void ofApp::keyPressed(int key){
         
         rabbitCenter.y = rabbitCenter.y - (stepRab - 9);
         rabCenterPosY = rabCenterPosY - (stepRab - 9);
+        }
+        
+        if(ofGetElapsedTimeMillis()/1000 >= 32 && ofGetElapsedTimeMillis()/1000<= 90 && foxCenterPosX + 751/jpgTimes <= 0){
+            rabbitStandCenter.x = rabbitStandCenter.x - (stepRab - 9);
+            rabStandCenterPosX = rabStandCenterPosX - (stepRab - 9);
+        }
         
     }
     if(foxCenterPosX <= 1300){
     if(key == 'd'){
-        foxCenter.x = foxCenter.x + stepFox;
-        foxCenterPosX = foxCenterPosX + stepFox;
+        if(ofGetElapsedTimeMillis()/1000 < 32 && foxCenterPosX + 751/jpgTimes >= 0 ){
+            foxCenter.x = foxCenter.x + stepFox;
+            foxCenterPosX = foxCenterPosX + stepFox;
 
-        foxCenter.y = foxCenter.y + 4;
-        foxCenterPosY = foxCenterPosY + 4;
+            foxCenter.y = foxCenter.y + 4;
+            foxCenterPosY = foxCenterPosY + 4;
+        }
+        
+        if(ofGetElapsedTimeMillis()/1000 >= 32 && ofGetElapsedTimeMillis()/1000<= 90 && foxCenterPosX + 751/jpgTimes <= 0){
+            rabbitStandCenter.x = rabbitStandCenter.x + (stepRab - 9);
+            rabStandCenterPosX = rabStandCenterPosX + (stepRab - 9);
+        }
         
     }
         
@@ -638,8 +966,15 @@ void ofApp::mouseMoved(int x, int y ){
     foxEyePos = foxStandCenter + ofVec2f(posX, posY);
     foxEyePosA = foxStandCenter + ofVec2f(posXA, posYA);
     
+    foxEyePosLast = foxFinalCenter + ofVec2f(posX, posY);
+    foxEyePosLastA = foxFinalCenter + ofVec2f(posXA, posYA);
+    
     rabEyePos = rabbitStandCenter + ofVec2f(posX + 5, posY - 30);
     rabEyePosA = rabbitStandCenter + ofVec2f(posXA + 5, posYA - 30);
+    
+    rabEyePosLast = rabFinalCenter + ofVec2f(posX + 5, posY - 30);
+    rabEyePosLastA = rabFinalCenter + ofVec2f(posXA + 5, posYA - 30);
+
     
     //draw Arms in the main scene
     int ArmSTPosX = ofMap(x,0,ofGetWidth(), 0, 0); // ArmST = foxStandCenter + ofVec2f(100/jpgTimes,100/jpgTimes);

@@ -57,6 +57,8 @@ class ofApp : public ofBaseApp{
 
     void drawFoxEyeA1();//open - in main scene - fox
     void drawRabEyeA1();//open - in main scene - rab
+    void drawFoxFinalEye();//open - in last scene -fox
+    void drawRabFinalEye();//open - in last scene -rab
     
     void drawFoxEyeB1();//close - in main scene - fox
     void drawRabEyeB1();//close - in main scene - rab
@@ -65,7 +67,14 @@ class ofApp : public ofBaseApp{
 
     void drawFirstScene();
     void drawMainSceneA();
-
+    void drawEndScene();
+    void drawStars();
+    
+    string timeString;
+    string lyrics;
+    
+    ofTrueTypeFont font1;
+    ofTrueTypeFont font2;
     
     bool useFbo = false;
     ofFbo fbo;

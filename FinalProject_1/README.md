@@ -28,11 +28,20 @@ The ideal user is the people who have seen the musical **_Come From Away_** or a
 - I am also confused about how to make smooth animation (e.g. walking). At present the walking animation of the character is achieved by alternating two static frames.
 
 ## Screenshots
+### Prototype
 ![scene A](imgs/img1.png)
 ![scene B](imgs/img2.png)
 
+### Second iteration
+![scene A](imgs/s1.png)
+![scene A](imgs/s2.png)
+![scene A](imgs/s3.png)
+![scene A](imgs/s4.png)
+
+
 ## Youtube Link 
-[![Youtube Video](imgs/sceneB.jpg)](https://www.youtube.com/watch?v=4KtmKsTJcdA&feature=youtu.be)
+### Second iteration
+[![Youtube Video](imgs/s1.png)](https://www.youtube.com/watch?v=4KtmKsTJcdA&feature=youtu.be)
 
 
 
