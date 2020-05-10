@@ -41,7 +41,7 @@ The ideal user is the people who have seen the musical **_Come From Away_** or a
 
 ## Youtube Link 
 ### Second iteration
-[![Youtube Video](imgs/s1.png)](https://www.youtube.com/watch?v=4KtmKsTJcdA&feature=youtu.be)
+[![Youtube Video](imgs/s1.png)](https://youtu.be/i-zgdtL6aDc)
 
 
 
