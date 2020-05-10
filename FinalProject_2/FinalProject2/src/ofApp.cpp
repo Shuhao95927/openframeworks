@@ -3,14 +3,9 @@
 
 ofxJSONElement root;
 
-//int elapsedTime = ofGetElapsedTimeMillis();
-
-int ASTposX = 0;
-int ASTposY = 0;
+int ASTposX;
+int ASTposY;
 ofVec2f AST(ASTposX,ASTposY);
-
-int earthPosX, earthPosY;
-ofVec2f earthCenter(earthPosX,earthPosY);
 
 int ASTspeed = ofRandom(1,10);
 int missDistance = 0;
@@ -19,7 +14,15 @@ int countNum = 0;
 int rotateDegrees = 0;
 int asteroidVelocity = 0;
 
+int detectWaveSize = 0;
+int explosionSize = 15;
+
+ofSoundPlayer laser;
+ofSoundPlayer music;
+
+
 bool pressedKey = false;
+bool detect = false;
 
 int asteroidID[281]; //how many asteroid data = 281
 
@@ -29,8 +32,9 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     ofBackground(10);
     
-    font1.load("Prompt-Bold.ttf",35);
-    font2.load("Prompt-ExtraLight.ttf",20);
+    font1.load("Prompt-Bold.ttf",10);
+    font2.load("Prompt-ExtraLight.ttf",10);
+    
     
     std::string url = "https://api.nasa.gov/neo/rest/v1/neo/3542519?api_key=gf31JndEhgfWs2EXpnH40eyRLccnweVPqqjqOIip";
     bool parsingSuccessful = root.open(url);
@@ -45,9 +49,18 @@ void ofApp::setup(){
     gui.add(velocity.setup("Velocity of the object (km/s)",30,10,100));// km/s
     gui.add(missDistance.setup("Miss distance (km)",50,0,100)); // ???
     gui.add(color.setup("Color of the system",ofColor(255,100,100),ofColor(0,0,0),ofColor(255,255,255)));
-    gui.add(shape.setup("Shape of the object - Next one"));
+//    gui.add(shape.setup("Shape of the object - Next one"));
     
-    // size
+    laser.load("laser.wav");
+    music.load("LST - Sun In The Screen.mp3");
+        
+    fbo.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA); // higher precision alpha (no artifacts)
+    fbo.begin();
+    ofClear(255,255,255, 0);
+    fbo.end();
+    
+    music.setLoop(true);
+    music.play();
 }
 
 //--------------------------------------------------------------
@@ -56,34 +69,58 @@ void ofApp::update(){
     if(pressedKey == true){
         ASTposX +=  asteroidVelocity;
         ASTposY = ASTposX * ofGetHeight()/ofGetWidth() - missDistance;
-//      ASTposX += missDistance * asteroidVelocity;
-//      ASTposY += 1 * asteroidVelocity; //d
+        AST = ofVec2f(ASTposX,ASTposY);
+        
+        if(detectWaveSize <= 200){
+            detectWaveSize = detectWaveSize + 5;
+        }else{
+            detectWaveSize = 0;
+        }
+        if(detect == true){
+            if(explosionSize <= 30){
+                explosionSize = explosionSize + 1.5;
+            }
+        }else{
+            explosionSize = 15;
+        }
+//        cout << AST << endl;
+
     }
     
+    fbo.begin();
+    ofFill();
+    ofSetColor(0,25);
+    ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
+    
+    drawStars();
+    
+    drawObjects();
+//    distDetect();
+    drawEarth();
+    
+    fbo.end();
+    
 }
-
 std::ostringstream text;
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-//    std::string summary = root["close_approach_data"][1]["close_approach_date"].asString();
-//    intro = root["close_approach_data"][1]["close_approach_date"].asString();
-    
     gui.draw();
-    drawEarth();
-//    cout << countFrame << endl;
     float countFrame = ofGetFrameNum();
-//    cout << countFrame << endl;
     
-    ofSetColor(255,100,100);
-    ofDrawBitmapString(text.str(),20,40);
+    fbo.draw(0,0);
+    
     
     if(pressedKey == true){
         drawObjects();
+        distDetect();
+        drawIntro();
     }
-
     
+    drawEarth();
+    drawStars();
+
 }
 
 
@@ -95,8 +132,9 @@ void ofApp::drawEarth(){
     
     ofVec2f lunar = rotateLunar.rotate(rotateDegrees++,earthCenter);
     
-    ofSetColor(255,50);
-    ofDrawEllipse(earthCenter,100,100);
+    ofSetCircleResolution(100);
+    ofSetColor(100,200-detectWaveSize);
+    ofDrawEllipse(earthCenter,detectWaveSize,detectWaveSize);
     
     ofSetColor(255);
     ofDrawEllipse(lunar,10,10);
@@ -114,14 +152,7 @@ void ofApp::drawObjects(){
     
     asteroidVelocity = ofToInt(root["close_approach_data"][countNum]["relative_velocity"]["kilometers_per_second"].asString()) / 5;
     missDistance = ofToInt(root["close_approach_data"][countNum]["miss_distance"]["lunar"].asString());
-    
-//  ofDrawEllipse(ofRandom(ofGetWidth()), 100, 50, 50);
-//    ofVec2f startPointA(0,0);
-//    ofVec2f startPointB(0,ofGetHeight());
-//    ofVec2f startPointC(ofGetWidth(),0);
-//    ofVec2f startPointD(ofGetWidth(),ofGetHeight());
-//
-//    ofVec2f startPoints [] = {startPointA,startPointB,startPointC,startPointD};
+
     ofSetColor(color);
     ofDrawEllipse(ASTposX, ASTposY, size, size);
     //startPoints[int(ofRandom(4))]
@@ -129,8 +160,45 @@ void ofApp::drawObjects(){
 }
 
 void ofApp::distDetect(){
-    float distance = AST.distance(earthCenter);
+    float distance = AST.distance(ofVec2f(ofGetWidth()/2,ofGetHeight()/2));
+    cout<< distance << endl;
+    if(distance <= 120){
+        detect = true;
+        if(ASTposX <= ofGetWidth()/2){
+            laser.play();
+            ofSetColor(0,200,255);
+            ofSetLineWidth(2);
+            ofDrawLine(ASTposX,ASTposY,ofGetWidth()/2,ofGetHeight()/2);
+            size = 0;
+            
+            ofSetColor(255,200,0, 240 - explosionSize*8);
+            ofDrawSphere(ASTposX, ASTposY, explosionSize);
+            ofSetColor(255,255,0, 240 - explosionSize*8);
+            ofDrawSphere(ASTposX, ASTposY, explosionSize-12);
+        }
+    }else{
+        detect = false;
+    }
     
+}
+
+void ofApp::drawIntro(){
+    intro = "The close approch date is " + root["close_approach_data"][countNum]["close_approach_date"].asString() + "\n" + "The relative velocity is " + root["close_approach_data"][countNum]["relative_velocity"]["kilometers_per_second"].asString() + " km / s" + "\n" + "The miss distance is " + root["close_approach_data"][countNum]["miss_distance"]["kilometers"].asString() + " km";
+    
+    ofSetColor(255);
+    font1.drawString(intro, ofGetWidth() * 0.03, ofGetHeight() * 0.9);
+}
+
+void ofApp::drawStars(){
+    int sx,sy;
+    
+    if(ofGetFrameNum() % 6 == 0){
+        sx = ofRandom(ofGetWidth());
+        sy = ofRandom(ofGetHeight());
+    }
+        ofVec2f starPos(sx,sy);
+        ofSetColor(255);
+        ofDrawSphere(starPos.x, starPos.y, ofRandom(1,3));
 }
 
 //--------------------------------------------------------------
@@ -141,17 +209,13 @@ void ofApp::keyPressed(int key){
             countNum++;
             ASTposX = 0;
             ASTposY = 0;
+            size = 10;
+//            cout << AST << endl;
+
         }
         
-        text.str("");
-        
-        std::string summary = root["close_approach_data"][countNum]["close_approach_date"].asString();
-        text << "Time: " << summary << "Count Number" << countNum;
-//        cout << countNum << endl;
-        font1.drawString(summary, ofGetWidth() * 0.08, ofGetHeight() * 0.9);
-        
         pressedKey = true;
-        cout << "This is "<< countNum <<"times, and the velocity is " << asteroidVelocity << endl;
+        time = ofGetElapsedTimeMillis();
 
     }
 

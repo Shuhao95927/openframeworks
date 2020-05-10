@@ -25,6 +25,9 @@ class ofApp : public ofBaseApp{
     void drawEarth();
     void drawObjects();
     void distDetect();
+    void drawIntro();
+    void drawStars();
+    uint64_t time;
     
     ofTrueTypeFont font1;
     ofTrueTypeFont font2;
@@ -35,7 +38,7 @@ class ofApp : public ofBaseApp{
     ofxFloatSlider velocity;
     ofxFloatSlider missDistance;
     ofxColorSlider color;
-    ofxButton shape;
+//    ofxButton shape;
     
     ofFbo fbo;
 
